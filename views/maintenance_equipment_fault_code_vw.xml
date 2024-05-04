@@ -20,7 +20,7 @@
             <field name="name">vw.maintenance.equipment.fault.code.form</field>
             <field name="model">maintenance.equipment.fault.code</field>
             <field name="arch" type="xml">
-                <form String="Codigos de falla-prueba git">
+                <form String="Codigos de falla">
                     <sheet>
                         <widget name="web_ribbon" title="Archivado" bg-color="bg-danger" attrs="{'invisible': [('active','=',True)]}"/>
                         <div class="oe_title">
