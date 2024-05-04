@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+     <!-- Busquedas,filtros y agrupaciones para el modelo codigos falla para equipo de mantenimiento -->
+        <record id="view_maintenance_request_fault_code_item_search" model="ir.ui.view">
+            <field name="name">view.maintenance.request.fault.code.item.search</field>
+            <field name="model">maintenance.request.fault.code.item</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name" string="Falla" filter_domain="['|',('name', 'ilike', self),('folio', 'ilike', self)]"/>
+                    <field name="numero_economico_id_request" string="Maquina" filter_domain="['|',('numero_economico_id_request', 'ilike', self),('codigo_interno_id_request', 'ilike', self)]"/>
+                    <field name="seccion_id_request" string="Sección o departamento" filter_domain="['|',('seccion_id_request', 'ilike', self),('departamento_id_request', 'ilike', self)]"/>
+                    <filter name="folios_falla_archivados" string="Archivados" domain="[('active', '=', False)]"/>
+                    <group>
+                        <filter name="group_by_fault_code" string="Código fallo" context="{'group_by': 'name'}"/>
+                        <filter name="group_by_fault_request" string="Petición mantenimiento" context="{'group_by': 'peticion_id_request'}"/>
+                        <filter name="group_by_fault_maquina" string="Maquina" context="{'group_by':'equipment_id_request'}"/>
+                        <filter name="group_by_fault_numero_economico" string="Número economico" context="{'group_by':'numero_economico_id_request'}"/>
+                        <filter name="group_by_fault_codigo_interno" string="Código interno" context="{'group_by':'codigo_interno_id_request'}"/>
+                        <filter name="group_by_fault_departamento" string="Departamento" context="{'group_by':'departamento_id_request'}"/>
+                        <filter name="group_by_fault_seccion" string="Sección" context="{'group_by':'seccion_id_request'}"/>
+                    </group>
+                </search>
+
+            </field>
+        </record>
+
+    <!-- Formulario para el modelo Documento para equipo de mantenimiento -->
+    <record id="view_maintenance_request_fault_code_item_form" model="ir.ui.view">
+            <field name="name">vw.maintenance.request.fault.code.item.form</field>
+            <field name="model">maintenance.request.fault.code.item</field>
+            <field name="arch" type="xml">
+                <form String="historial de falla">
+                    <sheet>
+                        <widget name="web_ribbon" title="Archivado" bg-color="bg-danger" attrs="{'invisible': [('active','=',True)]}"/>
+                        <div class="oe_title">
+                            <label class="oe_edit_only" for="folio" string="Folio de captura"/>
+                            <h1><field  name="folio"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="active" invisible="1"/>
+                                <field name="name" string="Código falla"/>
+                                <field name="peticion_id_request" string="Petición de mantenimiento"/>
+                                <field name="equipment_id_request" string="Maquina u equipo"/>
+                                <field name="numero_economico_id_request" string="Número economico"/>
+                                <field name="codigo_interno_id_request" string="Código interno" invisible="1"/>
+                            </group>
+                            <group>
+                                <field name="create_uid" string="Creado por"/>
+                                <field name="create_date" string="Creado en "/>
+                                <field name="seccion_id_request" string="Sección"/>
+                                <field name="departamento_id_request" string="Departamento"/>
+                                <field name="responsable_id_request" string="Responsable"/>
+                            </group>
+                        </group>
+                       <group>
+                           <field name="observaciones" placeholder="Anotar observaciones de la petición"/>
+                       </group>
+
+                    </sheet>
+
+                </form>
+
+            </field>
+    </record>
+    <!-- Listado para el modelo historial de mantenimiento -->
+    <data>
+        <record id="view_maintenance_request_fault_code_item_tree" model="ir.ui.view">
+            <field name="name">view.maintenance.request.fault.code.item.tree.view</field>
+            <field name="model">maintenance.request.fault.code.item</field>
+            <field name="arch" type="xml">
+           <tree string="codigo fallo">
+               <field name="active" />
+               <field name="folio" string="No. folio"/>
+               <field name="name" string="Código falla"/>
+               <field name="peticion_id_request" string="Petición de mantenimiento"/>
+               <field name="equipment_id_request" string="Maquina"/>
+               <field name="numero_economico_id_request" string="Número economico"/>
+               <field name="codigo_interno_id_request" string="Código interno" invisible="0"/>
+               <field name="seccion_id_request" string="Sección"/>
+               <field name="departamento_id_request" string="Departamento"/>
+               <field name="responsable_id_request" string="Responsable" invisible="0"/>
+               <field name="create_uid" string="Creado por" invisible="1"/>
+               <field name="create_date" string="Creado en " invisible="1"/>
+               <field name="observaciones" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+    </data>
+</odoo>

@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Acción para el modelo Equipo de mantenimiento utilizado en botón inteligente dentro
+         de jomiloro.equipment.form.inherit1.
+         Abre o muestra todas las revisiones fisicas realizadas  a un equipo de mantenimiento, por
+         default muestra la vista tree -->
+        <record id="action_view_equipo_revision" model="ir.actions.act_window">
+            <field name="name">Revisiones</field>
+            <field name="res_model">maintenance.equipment.review</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('equipo_mantenimiento_id', '=', active_id)]</field>
+            <field name="help" type="html">
+                <p>
+                    La revisiones físicas a máquinas y herramientas deben de realizarse periódicamente
+                    y llevar un seguimiento en fechas.
+                </p>
+            </field>
+        </record>
+
+        <!-- Acción para el modelo Préstamo del equipo de mantenimiento utilizado en botón inteligente dentro
+         de jomiloro.equipment.form.inherit1.
+         Abre o muestra todas las entradas y salidas de un equipo de mantenimiento, por default muestra la vista tree -->
+        <record id="action_view_equipo_prestamo" model="ir.actions.act_window">
+            <field name="name">Préstamos</field>
+            <field name="res_model">maintenance.equipment.loan</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('item_ids.name', '=', active_id)]</field>
+            <field name="context">{'search_default_confirmar_prestamo': 1}</field>
+            <field name="help" type="html">
+                <p>
+                    La salida de una máquina o herramienta es un préstamo a una persona o empresa, esta puede ser
+                    un proveedor, cliente o la misma empresa. Una entrada de una máquina o herramienta es la recepción
+                    en las instalaciones de la empresa de una máquina que estaba en préstamo.
+                </p>
+            </field>
+        </record>
+
+        <!-- Acción para abrir Wizard préstamo del equipo de mantenimiento  -->
+        <record id="maintenance_equipment_loan_open_wizard" model="ir.actions.act_window">
+            <field name="name">Crear préstamo</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">maintenance.equipment.loan.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_maintenance_equipment_loan_wizard_form"/>
+            <field name="target">new</field>
+        </record>
+
+        <!-- Acción para el modelo Equipo de mantenimiento utilizado en botón inteligente dentro
+         de jomiloro.equipment.form.inherit1.
+         Abre o muestra todos los accesorios de una máquina o herramienta, por default muestra la vista tree -->
+        <record id="action_view_maintenance_equipment_accessories" model="ir.actions.act_window">
+            <field name="name">Accesorios</field>
+            <field name="res_model">maintenance.equipment</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="maintenance.hr_equipment_view_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Accesorios no encontrados. ¡Vamos a crear uno!
+                </p><p>
+                    Para crear accesorios cree una máquina o herramienta y habilite la opción accesorio,
+                    y seleccionae la máquina o herramienta padre.
+                </p>
+            </field>
+        </record>
+
+        <!-- Inherit search View to Modify it -->
+        <record id="jomiloro_equipment_search_inherit1" model="ir.ui.view">
+            <field name="name">jomiloro.equipment.search.inherit1</field>
+            <field name="model">maintenance.equipment</field>
+            <field name="inherit_id" ref="maintenance.hr_equipment_view_search"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="replace">
+                    <field string="Equipment" name="name"
+                           filter_domain="['|', '|', '|', '|', '|', ('name', 'ilike', self),
+                           ('model', 'ilike', self),
+                           ('serial_no', 'ilike', self),
+                           ('partner_ref', 'ilike', self),
+                           ('codigo_interno', 'ilike', self),
+                           ('numero_economico', 'ilike', self)]"/>
+                </xpath>
+                <xpath expr="//filter[@name='available']" position="after">
+                    <separator/>
+                    <filter string="Equipo bajo contrato" name="equipo_contrato" domain="[('propiedad_equipo', '=', 'contrato')]"/>
+                    <filter string="Equipo de apoyo" name="es_equipo_apoyo" domain="[('es_equipo_apoyo', '=', True)]"/>
+                    <filter string="Equipo suministrado por foráneo " name="equipo_foraneo" domain="[('propiedad_equipo', '=', 'prestada')]"/>
+                    <separator/>
+                    <filter string="Equipo en sitio" name="equipo_en_sitio" domain="[('state', '=', 'en_sitio')]"/>
+                    <filter string="Equipo en proceso" name="equipo_en_proceso" domain="[('state', '=', 'en_proceso')]"/>
+                    <filter string="Equipo en préstamo" name="equipo_en_prestamo" domain="[('state', '=', 'en_prestamo')]"/>
+                    <separator/>
+                    <filter string="Por inventariar" name="es_inventariable" domain="[('is_inventariado', '=', False)]"/>
+                    <separator/>
+                    <filter string="Solo máquinas y herramientas" name="es_kit" domain="[('es_kit', '=', False)]" invisible="0"/>
+                </xpath>
+                <xpath expr="//filter[@name='category']" position="after">
+                    <filter name="group_by_seccion" string="Sección" context="{'group_by': 'id_seccion'}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Inherit Form View to Modify it -->
+        <record id="jomiloro_equipment_form_inherit1" model="ir.ui.view">
+            <field name="name">jomiloro.equipment.form.inherit1</field>
+            <field name="model">maintenance.equipment</field>
+            <field name="inherit_id" ref="maintenance.hr_equipment_view_form"/>
+            <field name="arch" type="xml">
+                <div name="button_box" position="inside">
+                    <button name="%(action_view_equipo_revision)d"
+                            class="oe_stat_button"
+                            icon="fa-cubes"
+                            type="action">
+                        <div class="o_field_widget o_stat_info">
+                            <span class="o_stat_value">
+                                <field name="revisiones_numero"/> veces
+                            </span>
+                            <span class="o_stat_text">
+                                Revisiones
+                            </span>
+                        </div>
+                    </button>
+                    <button name="%(action_view_equipo_prestamo)d"
+                            class="oe_stat_button"
+                            icon="fa-eject"
+                            type="action">
+                        <div class="o_field_widget o_stat_info">
+                            <span class="o_stat_value">
+                                <field name="prestamo_maquina_numero"/>
+                            </span>
+                            <span class="o_stat_text">
+                                Préstamos
+                            </span>
+                        </div>
+                    </button>
+                    <button name="action_accessories"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-tasks"
+                            attrs="{'invisible' : ['|', ('es_kit', '=', True), ('id', '=', False)]}"
+                            context="{'default_parent_id': id}">
+                        <field string="Accesorios" name="accesorios_numero" widget="statinfo"/>
+                    </button>
+                </div>
+                <xpath expr="//form//sheet" position="before">
+                    <header>
+                        <button string="Prestar equipo"
+                                type="action"
+                                name="%(maintenance_equipment_loan_open_wizard)d"
+                                class="oe_highlight"
+                                states="en_sitio"/>
+                        <button string="Ingresar equipo"
+                                type="action"
+                                name="%(maintenance_equipment_loan_open_wizard)d"
+                                class="oe_highlight"
+                                states="en_prestamo"/>
+                        <field name="state" widget="statusbar" statusbar_visible="en_sitio,en_proceso,en_prestamo" statusbar_colors="{'KEY_IS_STATE':'VALUE_IS_COLOR'}"/>
+                    </header>
+                </xpath>
+                <xpath expr="//field[@name='category_id']" position="before">
+                    <field name="codigo_interno"/>
+                </xpath>
+                <xpath expr="//field[@name='location']" position="before">
+                    <field name="id_seccion"/>
+                </xpath>
+                <xpath expr="//field[@name='location']" position="after">
+                    <field name="es_kit" widget="boolean_toggle"/>
+                    <field name="parent_id" attrs="{'invisible':[('es_kit', '=', False)]}" domain="[('es_kit','=', False)]"/>
+                </xpath>
+                <xpath expr="//field[@name='model']" position="before">
+                    <field name="numero_economico"/>
+                </xpath>
+                <xpath expr="//field[@name='effective_date']" position="after">
+                    <field name="fecha_compra" groups="mtto_confetex.group_documentos_mantenimiento"/>
+                </xpath>
+                <xpath expr="//field[@name='cost']" position="after">
+                    <field name="id_currency"/>
+                </xpath>
+                <xpath expr="//field[@name='warranty_date']" position="after">
+                    <field name="es_equipo_apoyo" widget="boolean_toggle"/>
+                </xpath>
+                <xpath expr="//field[@name='department_id']" position="after">
+                    <field name="propiedad_equipo" widget="radio" groups="mtto_confetex.group_documentos_mantenimiento"/>
+                </xpath>
+                <notebook position="inside">
+                    <page string="Detalle">
+                        <field name="characteristics_item_ids">
+                            <tree editable="bottom">
+                                <control>
+                                    <create name="add_product_control" string="Agregar detalle a máquina o herramienta"/>
+                                </control>
+                                <field name="sequence" optional="show" widget="handle"/>
+                                <field name="name"/>
+                                <field name="valor"/>
+                                <field name="tipo_caracteristica_id"/>
+                            </tree>
+                        </field>
+                    </page>
+                    <page string="Documentos" groups="mtto_confetex.group_documentos_mantenimiento">
+                        <group>
+                            <field name="url_carpeta_google_drive_category" widget="url"/>
+                            <field name="url_carpeta_google_drive" widget="url" string="Url carpeta"/>
+                            <field name="url_documento_qr" widget="url" string="Url documento QR"/>
+                        </group>
+                        <field name="documentos_ids">
+                            <form>
+                                <group>
+                                    <group>
+                                        <field name="id_equipo_mantenimiento" invisible="1"/>
+                                        <field name="name"/>
+                                        <field name="folio"/>
+                                        <field name="id_currency"/>
+                                    </group>
+                                    <group>
+                                        <field name="valor" widget="monetary" options="{'currency_field': 'id_currency'}"/>
+                                        <field name="fecha"/>
+                                        <field name="id_partner" widget="res_partner_many2one"
+                                               context="{'res_partner_search_mode': 'supplier', 'show_vat': True}"
+                                               placeholder="Name, TIN, Email, or Reference"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <field name="url_google_drive" widget="url"/>
+                                    <field name="nota"/>
+                                </group>
+                            </form>
+                            <tree>
+                                <control>
+                                    <create name="add_product_control" string="Agregar documento"/>
+                                </control>
+                                <field name="name"/>
+                                <field name="folio"/>
+                                <field name="fecha"/>
+                                <field name="id_partner" optional="hide"/>
+                                <field name="valor"/>
+                                <field name="id_currency"/>
+                                <field name="url_google_drive" widget="url" text="Ver documento"/>
+                            </tree>
+                        </field>
+                    </page>
+                </notebook>
+                <notebook position="inside">
+                    <page string="Revisión física" groups="mtto_confetex.group_documentos_mantenimiento">
+                        <button string="Inventariar" name="inventariar_equipo_mantenimiento" type="object" class="oe_highlight" attrs="{'invisible':[('is_inventariado', '=', True)]}"/>
+                        <group>
+                            <group>
+                                <field name="is_inventariado" widget="boolean_toggle" attrs="{'invisible':[('is_inventariado', '=', False)]}"/>
+                                <field name="usuario_reviso_id" attrs="{'invisible':[('is_inventariado', '=', False)]}"/>
+                            </group>
+                            <group>
+                                <field name="fecha_revision_equipo" attrs="{'invisible':[('is_inventariado', '=', False)]}"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="comentario_revision" attrs="{'invisible':[('is_inventariado', '=', False)]}"/>
+                        </group>
+                    </page>
+                </notebook>
+                <notebook position="inside">
+                    <page string="Historial peticiones">
+
+                    </page>
+                </notebook>
+            </field>
+        </record>
+
+        <!-- Inherit tree View to Modify it -->
+        <record id="jomiloro_equipment_tree_inherit1" model="ir.ui.view">
+            <field name="name">jomiloro.equipment.tree.inherit1</field>
+            <field name="model">maintenance.equipment</field>
+            <field name="inherit_id" ref="maintenance.hr_equipment_view_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='company_id']" position="before">
+                    <field name="color" widget="color_picker" string="Color"/>
+                    <field name="is_inventariado" invisible="True"/>
+                    <button string="Inventariar" name="inventariar_equipo_mantenimiento" type="object" icon="fa-check" attrs="{'invisible':[('is_inventariado', '=', True)]}"/>
+                </xpath>
+                <xpath expr="//field[@name='company_id']" position="after">
+                    <field name="state" widget="badge"
+                           decoration-success="state == 'en_sitio'"
+                           decoration-info="state == 'en_prestamo'"
+                           decoration-danger="state == 'en_proceso'"/>
+                </xpath>
+                <xpath expr="//field[@name='name']" position="before">
+                    <field name="codigo_interno"/>
+                    <field name="numero_economico" optional="show"/>
+                    <field name="url_carpeta_google_drive" widget="url" text="Carpeta" optional="hide"/>
+                    <field name="url_documento_qr" widget="url" text="Documento QR" optional="hide"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Inherit kanban View to Modify it -->
+        <record id="jomiloro_equipment_kanban_inherit1" model="ir.ui.view">
+            <field name="name">jomiloro.equipment.kanban.inherit1</field>
+            <field name="model">maintenance.equipment</field>
+            <field name="inherit_id" ref="maintenance.hr_equipment_view_kanban"/>
+            <field name="arch" type="xml">
+                <xpath expr="//kanban" position="inside">
+                    <field name="codigo_interno"/>
+                    <field name="is_inventariado"/>
+                    <field name="es_equipo_apoyo"/>
+                    <field name="state"/>
+                </xpath>
+                <xpath expr="//div[@class='o_kanban_record_top']" position="before">
+                    <div t-if="record.codigo_interno.value">
+                        <b class="o_kanban_record_title"><field name="codigo_interno"/> | <field name="numero_economico"/></b>
+                    </div>
+                </xpath>
+                <xpath expr="//div[@class='o_kanban_inline_block']" position="before">
+                    <span attrs="{'invisible':[('state', 'in', ['en_proceso','en_prestamo'])]}" class="badge badge-pill badge-success">
+                        En sitio
+                    </span>
+                    <span attrs="{'invisible':[('state', 'in', ['en_sitio','en_prestamo'])]}" class="badge badge-pill badge-danger">
+                        En proceso
+                    </span>
+                    <span attrs="{'invisible':[('state', 'in', ['en_sitio','en_proceso'])]}" class="badge badge-pill badge-info">
+                        En préstamo
+                    </span>
+                    <span attrs="{'invisible':[('es_equipo_apoyo', '=', False)]}" class="badge badge-pill badge-warning">
+                        Equipo de apoyo
+                    </span>
+                    <button name="inventariar_equipo_mantenimiento"
+                            type="object"
+                            class="btn btn-secondary btn-sm mt8"
+                            attrs="{'invisible':[('is_inventariado', '=', True)]}">Inventariar</button>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Inherit Form View to Modify it -->
+        <record id="jomiloro_equipment_category_form_inherit1" model="ir.ui.view">
+            <field name="name">jomiloro.equipment.category.form.inherit1</field>
+            <field name="model">maintenance.equipment.category</field>
+            <field name="inherit_id" ref="maintenance.hr_equipment_category_view_form"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='technician_user_id']" position="after">
+                    <field name="check_codigo_error" string="Código error"/>
+                    <field name="check_lista_chequeo" string="Lista chequeo"/>
+                    <field name="chanel_gd_id" options="{'no_create': True, 'no_open': True}"/>
+                    <field name="url_carpeta_google_drive"/>
+                </xpath>
+            </field>
+        </record>
+        <!-- vista lista -->
+        <record id="jomiloro_equipment_category_inherit1_tree" model="ir.ui.view">
+    <field name="name">view.maintenance.equipment.category.tree.view</field>
+    <field name="model">maintenance.equipment.category</field>
+    <field name="inherit_id" ref="maintenance.hr_equipment_category_view_tree"/>
+    <field name="arch" type="xml">
+        <xpath expr="//field[@name='company_id']" position="before">
+            <field name="check_codigo_error" string="Check código error"/>
+            <field name="check_lista_chequeo" string="Lista chequeo"/>
+        </xpath>
+    </field>
+</record>
+
+
+
+    </data>
+</odoo>
